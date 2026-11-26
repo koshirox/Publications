@@ -1,0 +1,1 @@
+Publications: static file served by Nginx
