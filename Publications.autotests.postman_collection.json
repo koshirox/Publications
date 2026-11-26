@@ -1,0 +1,1783 @@
+{
+  "info": {
+    "name": "Publications — автотесты",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@example.com"
+    },
+    {
+      "key": "adminPassword",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "authorToken",
+      "value": ""
+    },
+    {
+      "key": "readerToken",
+      "value": ""
+    },
+    {
+      "key": "authorId",
+      "value": ""
+    },
+    {
+      "key": "readerId",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "postId",
+      "value": ""
+    },
+    {
+      "key": "commentId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Вход администратора",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set(\"runId\", Date.now().toString());",
+              "[\"adminToken\", \"authorToken\", \"readerToken\", \"authorId\", \"readerId\", \"categoryId\", \"postId\", \"commentId\"].forEach(function (name) {",
+              "    pm.collectionVariables.unset(name);",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.access_token).to.be.a(\"string\").and.not.empty;",
+              "    });",
+              "    pm.collectionVariables.set(\"adminToken\", data.access_token);",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Регистрация автора",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"author-{{runId}}@example.com\",\n  \"password\": \"test12345\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    const data = pm.response.json();",
+              "    pm.collectionVariables.set(\"authorId\", data.id);",
+              "}",
+              "",
+              "if (pm.response.code !== 201) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Регистрация читателя",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"reader-{{runId}}@example.com\",\n  \"password\": \"test12345\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    const data = pm.response.json();",
+              "    pm.collectionVariables.set(\"readerId\", data.id);",
+              "}",
+              "",
+              "if (pm.response.code !== 201) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Вход автора",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"author-{{runId}}@example.com\",\n  \"password\": \"test12345\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.collectionVariables.set(\"authorToken\", data.access_token);",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Вход читателя",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"reader-{{runId}}@example.com\",\n  \"password\": \"test12345\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.collectionVariables.set(\"readerToken\", data.access_token);",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Мой профиль",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/users/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.id).to.eql(Number(pm.collectionVariables.get(\"authorId\")));",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Смена email автора",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/users/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"author-new-{{runId}}@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08. Профиль пользователя по ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/users/{{readerId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09. Без токена доступ закрыт",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/users/me",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "if (pm.response.code !== 401) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Создание категории администратором",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/categories",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Autotest {{runId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    const data = pm.response.json();",
+              "    pm.collectionVariables.set(\"categoryId\", data.id);",
+              "}",
+              "",
+              "if (pm.response.code !== 201) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Список категорий",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/categories",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Категория по ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/categories/{{categoryId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Переименование категории",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/categories/{{categoryId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Autotest updated {{runId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14. Пользователю запрещено создавать категории",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/categories",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Forbidden {{runId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 403\", function () {",
+              "    pm.response.to.have.status(403);",
+              "});",
+              "",
+              "if (pm.response.code !== 403) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15. Создание черновика",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/posts",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"category_id\": {{categoryId}},\n  \"title\": \"Тестовый пост\",\n  \"body\": \"Текст поста\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.status).to.eql(\"draft\");",
+              "    });",
+              "    pm.collectionVariables.set(\"postId\", data.id);",
+              "}",
+              "",
+              "if (pm.response.code !== 201) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16. Просмотр своего черновика",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/posts/{{postId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17. Редактирование поста",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/posts/{{postId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"category_id\": {{categoryId}},\n  \"title\": \"Изменённый пост\",\n  \"body\": \"Изменённый текст\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.title).to.eql(\"Изменённый пост\");",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18. Чужой черновик скрыт от читателя",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/posts/{{postId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "if (pm.response.code !== 404) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19. Подписка на автора",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": "{{baseUrl}}/subscriptions/{{authorId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "20. Подписки читателя",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/users/me/subscriptions",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.count).to.eql(1);",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "21. Подписчики автора",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/users/me/followers",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.count).to.eql(1);",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "22. Публикация поста",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/posts/{{postId}}/publish",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.status).to.eql(\"published\");",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "23. Общая лента",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/posts",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "24. Лента категории",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/posts?category_id={{categoryId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.length).to.eql(1);",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "25. Лента подписок",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/feed",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.length).to.eql(1);",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "26. Добавление комментария",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/posts/{{postId}}/comments",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"body\": \"Тестовый комментарий\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    const data = pm.response.json();",
+              "    pm.collectionVariables.set(\"commentId\", data.id);",
+              "}",
+              "",
+              "if (pm.response.code !== 201) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "27. Комментарии поста",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/posts/{{postId}}/comments",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.length).to.eql(1);",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "28. Комментарий по ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/comments/{{commentId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "29. Редактирование комментария",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/comments/{{commentId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"body\": \"Изменённый комментарий\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.body).to.eql(\"Изменённый комментарий\");",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "30. Поставить лайк",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": "{{baseUrl}}/posts/{{postId}}/likes/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "31. Счётчик лайков",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/posts/{{postId}}/likes",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authorToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.count).to.eql(1);",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "32. Понравившиеся посты",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/users/me/liked-posts",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.length).to.eql(1);",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "33. Снять лайк",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/posts/{{postId}}/likes/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "34. Удаление комментария",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/comments/{{commentId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "35. Отписка от автора",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/subscriptions/{{authorId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "36. Назначение читателя модератором",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": "{{baseUrl}}/users/{{readerId}}/moderator",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.role).to.eql(\"moderator\");",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "37. Модератор скрывает пост",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/posts/{{postId}}/hide",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Данные ответа верны\", function () {",
+              "        pm.expect(data.status).to.eql(\"hidden\");",
+              "    });",
+              "}",
+              "",
+              "if (pm.response.code !== 200) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "38. Модератор удаляет тестовый пост",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/posts/{{postId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{readerToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "39. Удаление тестовой категории",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/categories/{{categoryId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "40. Удаление тестового автора",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/users/{{authorId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "41. Удаление тестового читателя",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/users/{{readerId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Код ответа 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "    pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

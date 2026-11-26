@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from models import Post, Subscription, User
 
+
 # проверяет, что юзер с данным id существует и у него роль admin
 def require_admin(session: Session, admin_id: int) -> None:
     admin = session.get(User, admin_id)
@@ -95,6 +96,27 @@ def unsubscribe(session: Session, follower_id: int, author_id: int) -> None:
     if subscription is not None:
         session.delete(subscription)
         session.commit()
+
+
+def list_subscriptions(session: Session, user_id: int) -> list[User]:
+    query = (
+        select(User)
+        .join(Subscription, Subscription.author_id == User.id)
+        .where(Subscription.follower_id == user_id)
+        .order_by(User.id)
+    )
+    return list(session.scalars(query))
+
+
+def list_followers(session: Session, user_id: int) -> list[User]:
+    query = (
+        select(User)
+        .join(Subscription, Subscription.follower_id == User.id)
+        .where(Subscription.author_id == user_id)
+        .order_by(User.id)
+    )
+    return list(session.scalars(query))
+
 
 # лента постов тех, на кого подписан пользователь
 # join posts subscriptions, фильтр по follower_id и status=published

@@ -1,4 +1,4 @@
-"""Пять таблиц базы данных: пользователи, категории, посты, комментарии, подписки."""
+"""Шесть таблиц базы данных: пользователи, категории, посты, комментарии, подписки, лайки."""
 
 from datetime import datetime
 
@@ -23,6 +23,11 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(10), nullable=False, default="user")
+
+
+single_admin_index = Index(
+    "uq_users_single_admin", User.role, unique=True, postgresql_where=User.role == "admin",
+)
 
 
 class Category(Base):
